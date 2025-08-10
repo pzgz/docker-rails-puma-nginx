@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    image: docker-rails-puma-nginx
+    container_name: rails-app
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      # App code
+      - ./app:/home/app/current
+      # SSH keys (optional - uncomment and adjust path)
+      # - ~/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro
+      # - ~/.ssh/id_rsa.pub:/home/app/.ssh/authorized_keys:ro
+      # Persistent fail2ban database
+      - fail2ban-db:/var/lib/fail2ban
+      # Logs
+      - ./logs:/home/app/current/log
+    ports:
+      - "2222:22"  # SSH
+      - "80:80"    # HTTP
+      - "443:443"  # HTTPS
+    environment:
+      - RAILS_ENV=production
+      - DATABASE_URL=postgresql://user:pass@db:5432/app_production
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - app-network
+    depends_on:
+      - db
+      - redis
+    tmpfs:
+      - /run
+      - /tmp
+    stop_grace_period: 30s
+
+  db:
+    image: postgres:15-alpine
+    container_name: rails-db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=app_production
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: rails-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  fail2ban-db:

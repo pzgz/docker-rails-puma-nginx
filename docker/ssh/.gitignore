@@ -1,0 +1,9 @@
+# SSH Keys - Never commit these!
+authorized_keys
+*.pub
+*.pem
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+known_hosts

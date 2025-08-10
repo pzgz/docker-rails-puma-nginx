@@ -1,0 +1,42 @@
+[DEFAULT]
+# Ban hosts permanently (never unban automatically)
+bantime = -1
+# Find time: 1 hour window
+findtime = 3600
+# Max retry: 3 attempts before ban
+maxretry = 3
+# Backend for monitoring
+backend = systemd
+# Action to take when banning
+banaction = iptables-multiport
+banaction_allports = iptables-allports
+
+# Global whitelist
+ignoreip = 127.0.0.1/8 ::1
+
+[sshd]
+enabled = true
+port = ssh
+filter = sshd-aggressive
+logpath = /var/log/auth.log
+maxretry = 2
+findtime = 3600
+bantime = -1
+
+[sshd-ddos]
+enabled = true
+port = ssh
+filter = sshd-ddos
+logpath = /var/log/auth.log
+maxretry = 5
+findtime = 60
+bantime = -1
+
+[sshd-aggressive]
+enabled = true
+port = ssh
+filter = sshd-aggressive
+logpath = /var/log/auth.log
+maxretry = 1
+findtime = 3600
+bantime = -1
