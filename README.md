@@ -173,40 +173,6 @@ environment:
   - SECRET_KEY_BASE=your_secret_key
 ```
 
-## Deployment with GitHub Actions
-
-Example workflow for building and pushing to GitHub Container Registry:
-
-```yaml
-name: Build and Push Docker Image
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Build and push
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-```
-
 ## Troubleshooting
 
 ### Container won't start
