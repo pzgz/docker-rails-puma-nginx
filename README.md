@@ -8,6 +8,7 @@ Production-ready Docker image for Rails applications with comprehensive features
 * Nginx (latest stable) as reverse proxy
 * Puma application server
 * Sidekiq background job processor
+* Action Cable WebSocket support
 * Node.js v22 LTS with pnpm
 * Supervisord for process management
 * SSH server with key-only authentication
@@ -153,6 +154,7 @@ Your Rails application should be mounted at `/home/app/current`:
 ├── config/
 │   ├── puma.rb          # Puma configuration
 │   ├── sidekiq.yml      # Sidekiq configuration
+│   ├── cable.yml        # Action Cable configuration
 │   └── database.yml     # Database configuration
 ├── public/              # Static files served by Nginx
 ├── tmp/
@@ -161,17 +163,46 @@ Your Rails application should be mounted at `/home/app/current`:
 └── log/                 # Application logs
 ```
 
+### Action Cable Configuration
+
+The Nginx configuration includes WebSocket support for Action Cable at `/cable`. 
+
+In your Rails application:
+
+1. Configure `config/cable.yml`:
+```yaml
+production:
+  adapter: redis
+  url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
+  channel_prefix: app_production
+```
+
+2. Mount Action Cable in `config/routes.rb`:
+```ruby
+Rails.application.routes.draw do
+  mount ActionCable.server => '/cable'
+  # ... other routes
+end
+```
+
+3. Configure allowed request origins in `config/environments/production.rb`:
+```ruby
+config.action_cable.allowed_request_origins = ['https://yourdomain.com']
+```
+
 ### Environment Variables
 
 Set these in docker-compose.yml or docker run:
 
 ```yaml
 environment:
-  - RAILS_ENV=production
+  - RAILS_ENV=production  # Optional, defaults to 'production'
   - DATABASE_URL=postgresql://user:pass@db:5432/app_production
   - REDIS_URL=redis://redis:6379/0
   - SECRET_KEY_BASE=your_secret_key
 ```
+
+**Note**: `RAILS_ENV` defaults to `production` if not specified. You can override it to `development` or `staging` as needed.
 
 ## Troubleshooting
 

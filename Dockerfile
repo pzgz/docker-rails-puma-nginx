@@ -4,7 +4,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=zh_CN.UTF-8 \
     LANGUAGE=zh_CN:zh \
     LC_ALL=zh_CN.UTF-8 \
-    TZ=Asia/Shanghai
+    TZ=Asia/Shanghai \
+    RAILS_ENV=production
 
 # Update apt sources and install basic dependencies
 RUN apt-get update && apt-get install -y \

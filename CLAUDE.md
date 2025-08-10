@@ -9,15 +9,17 @@ Production-ready Docker image for Rails applications with Ruby 3.4.5, Nginx, Pum
 ## Key Features
 
 - **Base**: Ruby 3.4.5 on Debian Bookworm
-- **Web Server**: Latest Nginx with reverse proxy configuration
+- **Web Server**: Latest Nginx with reverse proxy and WebSocket support
 - **App Server**: Puma managed by supervisord
 - **Background Jobs**: Sidekiq managed by supervisord
+- **WebSocket**: Action Cable support at /cable endpoint
 - **Security**: fail2ban with permanent IP banning, SSH key-only auth
 - **Node.js**: v22 LTS with pnpm
 - **Chinese Support**: zh_CN.UTF-8 locale, Chinese fonts, Shanghai timezone
 - **Media Processing**: ImageMagick, libvips, ffmpeg, mupdf
 - **Geospatial**: libgeos, libproj, GDAL
 - **Process Manager**: Supervisord for managing all services
+- **Environment**: RAILS_ENV defaults to 'production', configurable via environment variable
 
 ## Common Commands
 
@@ -70,6 +72,12 @@ docker exec <container> tail -f /var/log/fail2ban.log
 docker-compose exec app bundle exec rails db:migrate
 docker-compose exec app bundle exec rails console
 docker-compose exec app bundle exec rails test
+
+# Run in development mode
+docker run -e RAILS_ENV=development ...
+# Or in docker-compose.yml:
+# environment:
+#   - RAILS_ENV=development
 ```
 
 ## Project Structure
